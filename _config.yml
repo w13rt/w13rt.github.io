@@ -200,7 +200,7 @@ collections:
     permalink: /:collection/:title/
 
 announcements:
-  enabled: true
+  enabled: false 
   scrollable: true # adds a vertical scroll bar if there are more than 3 news items
   limit: 5 # leave blank to include all the news in the `_news` folder
 
@@ -229,6 +229,7 @@ kramdown:
 # Includes & excludes
 include: ["_pages"]
 exclude:
+  - oldpages
   - bin/
   - CONTRIBUTING.md
   - CUSTOMIZE.md
@@ -264,7 +265,7 @@ plugins:
   - jekyll-minifier
   - jekyll-paginate-v2
   - jekyll-regex-replace
-  - jekyll/scholar
+#  - jekyll/scholar
   - jekyll-sitemap
   - jekyll-tabs
   - jekyll-toc
