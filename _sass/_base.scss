@@ -439,6 +439,7 @@ ul.task-list input[type="checkbox"] {
 footer.fixed-bottom {
   background-color: var(--global-footer-bg-color);
   font-size: 0.75rem;
+  padding: 0px;
 
   .container {
     color: var(--global-footer-text-color);
@@ -459,8 +460,8 @@ footer.fixed-bottom {
 
 footer.sticky-bottom {
   border-top: 1px solid var(--global-divider-color);
-  padding-top: 40px;
-  padding-bottom: 40px;
+  padding-top: 0px;
+  padding-bottom: 0px;
   font-size: 0.9rem;
 
   .container {
@@ -541,7 +542,7 @@ footer.sticky-bottom {
   }
 }
 .about-title{
-  font-size: calc(6vw + 6vh + 2vmin);
+  font-size: calc( 6vw + 6vh + 2vmin );
   text-align: left;
 }
 
