@@ -540,11 +540,16 @@ footer.sticky-bottom {
     }
   }
 }
+.about-title{
+  font-size: calc(6vw + 6vh + 2vmin);
+  text-align: left;
+}
 
 .post-title {
-  font-size: 10rem;
   mjx-container[jax="CHTML"][display="true"] {
     display: unset;
+    overflow-wrap: word-break;
+    
   }
 }
 
