@@ -1,6 +1,5 @@
 ---
 title: CRTO course and exam
-author: wiert
 date: 2019-08-08 14:10:00 +0800
 categories:
   - Blogging
@@ -10,8 +9,12 @@ tags:
   - crto
   - exam
   - certificates
-render_with_liquid: false
 pin: true
+render_with_liquid: false
+image:
+  path: /assets/img/crto.png
+  lqip: /assets/img/crto.png
+  alt: crto badge
 ---
 
 Discussing my experience of going through the course and taking the exam for CRTO. This was my first certificate, so take this review with a bit of salt.
