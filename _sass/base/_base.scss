@@ -105,7 +105,7 @@ main {
     position: absolute;
     background-color: var(--card-hover-bg);
     opacity: 0;
-    transition: opacity 0.35s ease-in-out;
+    transition: opacity 0.05s ease-in-out;
   }
 
   &:hover {
@@ -390,15 +390,15 @@ mjx-container {
 
 @media (hover: hover) {
   #sidebar ul > li:last-child::after {
-    transition: top 0.5s ease;
+    transition: top 0.05s ease;
   }
 
   .nav-link {
-    transition: background-color 0.3s ease-in-out;
+    transition: background-color 0.05s ease-in-out;
   }
 
   .post-preview {
-    transition: background-color 0.35s ease-in-out;
+    transition: background-color 0.05s ease-in-out;
   }
 }
 
