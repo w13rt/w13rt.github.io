@@ -1,6 +1,6 @@
 ---
 title: CRTO course and exam
-date: 2019-08-08 14:10:00 +0800
+date: 2024-10-11 14:10:00 +0800
 categories:
   - Blogging
   - certifiactes
@@ -24,8 +24,6 @@ NOTE: I took the old version of the course and exam
 ## Course
 
 For me, the course was clear and without too much fluff. The format is text with videos, which worked out fine for me. At first, it was sometimes a bit vague what was happening in the videos compared to the text, but I got used to it.
-
-Some parts, like Kerberos, have quite a lot of information, but the course assumes little knowledge on the subject, so it’s all explained as you go.
 
 In the old version, there were always real exercises. You could work along with the course while taking notes. From what I’ve heard, the new version also has exercises.
 
