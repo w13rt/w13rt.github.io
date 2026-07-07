@@ -1,0 +1,27 @@
+# Site settings
+title: My Blog
+description: Thoughts, notes and writing.
+author: Wiert
+url: "" # e.g. https://username.github.io
+baseurl: "" # e.g. /repo-name if hosted as a project page
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: /:year/:month/:title/
+
+sass:
+  style: compressed
+
+# Pagination-free simplicity: all posts on the index.
+# Add jekyll-paginate later if the archive grows large.
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md

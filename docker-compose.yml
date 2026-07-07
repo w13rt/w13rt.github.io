@@ -1,0 +1,16 @@
+services:
+  jekyll:
+    image: ruby:3.3
+    working_dir: /site
+    command: sh -c "bundle install && bundle exec jekyll serve --host 0.0.0.0 --livereload --force_polling"
+    ports:
+      - "4000:4000"   # site
+      - "35729:35729" # livereload
+    volumes:
+      - .:/site
+      - bundle-cache:/usr/local/bundle
+    environment:
+      JEKYLL_ENV: development
+
+volumes:
+  bundle-cache:
