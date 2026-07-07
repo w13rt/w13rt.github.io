@@ -2,8 +2,8 @@
 title: My Blog
 description: Thoughts, notes and writing.
 author: Wiert
-url: "" # e.g. https://username.github.io
-baseurl: "" # e.g. /repo-name if hosted as a project page
+url: "https://w13rt.github.io"
+baseurl: ""
 
 # Build settings
 markdown: kramdown
