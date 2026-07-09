@@ -15,6 +15,7 @@
   </script>
 </head>
 <body>
+  <div id="bg" aria-hidden="true"></div>
   <header class="site-header">
     <nav class="wrap">
       <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
@@ -41,6 +42,34 @@
   </footer>
 
   <script>
+    // Fill the background with a wall of random CP437 glyphs.
+    (function () {
+      var el = document.getElementById("bg");
+      var chars = "░░░▒▒▓│┤╣║╗╝┐└┴┬├─┼╚╔╩╦╠═╬█▄▀♠♣♥♦•○§¶≡±÷≈°·√⌐¬½¼«»αßΓπΣσµτΦΘΩδ∞φε∩";
+      function fill() {
+        // Cell size estimate; we overshoot and clip via overflow:hidden.
+        var style = getComputedStyle(el);
+        var cw = 8 + parseFloat(style.letterSpacing) || 14;
+        var ch = parseFloat(style.lineHeight) || 20;
+        var cols = Math.ceil(window.innerWidth / cw) + 2;
+        var rows = Math.ceil(window.innerHeight / ch) + 2;
+        var out = "";
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            out += chars[(Math.random() * chars.length) | 0];
+          }
+          out += "\n";
+        }
+        el.textContent = out;
+      }
+      fill();
+      var t;
+      window.addEventListener("resize", function () {
+        clearTimeout(t);
+        t = setTimeout(fill, 150);
+      });
+    })();
+
     document.getElementById("theme-toggle").addEventListener("click", function () {
       var root = document.documentElement;
       var current = root.getAttribute("data-theme") ||
