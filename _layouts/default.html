@@ -62,10 +62,12 @@
 
       // Fire palette: cold faint glyph -> deep red -> orange -> yellow -> white.
       function buildPalette() {
+        // Coldest stop is transparent (alpha 0) so unlit glyphs vanish into the
+        // background; only heated glyphs show colour.
         var stops = currentTheme() === "light"
-          ? [[0, [0,0,0,0.05]], [0.35, [150,55,10,0.16]], [0.6, [200,85,15,0.30]],
+          ? [[0, [150,55,10,0]], [0.35, [150,55,10,0.16]], [0.6, [200,85,15,0.30]],
              [0.82, [220,120,25,0.42]], [1, [232,158,55,0.55]]]
-          : [[0, [255,255,255,0.06]], [0.28, [110,18,8,0.34]], [0.52, [214,58,20,0.62]],
+          : [[0, [110,18,8,0]], [0.28, [110,18,8,0.34]], [0.52, [214,58,20,0.62]],
              [0.74, [255,138,32,0.85]], [0.9, [255,210,92,0.95]], [1, [255,255,224,1]]];
         palette = new Array(PAL_N);
         for (var i = 0; i < PAL_N; i++) {
