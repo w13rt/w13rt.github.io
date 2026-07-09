@@ -194,7 +194,7 @@ table {
 
 .site-title:hover {
   text-decoration: none;
-  color: var(--accent);
+  color: var(--flame-live, var(--flame));
 }
 
 /* Nav links share the title's look: plain bold text, no chips. */
@@ -210,7 +210,7 @@ table {
   }
 
   a:hover {
-    color: var(--accent);
+    color: var(--flame-live, var(--flame));
     text-decoration: none;
   }
 }
@@ -264,7 +264,7 @@ table {
   }
 
   a:hover {
-    color: var(--accent);
+    color: var(--flame-live, var(--flame));
     text-decoration: none;
   }
 }
@@ -329,7 +329,8 @@ table {
 }
 
 .btn:hover {
-  border-color: var(--text-muted);
+  border-color: var(--flame-live, var(--flame));
+  color: var(--flame-live, var(--flame));
 }
 
 .settings-note {
@@ -414,7 +415,7 @@ table {
   }
 
   a:hover {
-    color: var(--accent);
+    color: var(--flame-live, var(--flame));
   }
 }
 

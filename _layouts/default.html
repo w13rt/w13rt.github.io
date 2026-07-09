@@ -192,8 +192,25 @@
         card.style.borderImageSource = "linear-gradient(to bottom, " + stops + ")";
       }
 
+      // Publish a live flame colour (a mid-height flame tone that flickers) as
+      // a CSS variable, so hover states can pick it up. Sampled from a small
+      // central patch so it gently shifts rather than averaging flat.
+      function flameVar() {
+        var yb = (rows * 0.45) | 0, xc = cols >> 1, sum = 0, cnt = 0;
+        for (var y = yb - 1; y <= yb + 1; y++) {
+          var yy = y < 0 ? 0 : (y >= rows ? rows - 1 : y);
+          for (var x = xc - 3; x <= xc + 3; x++) {
+            var xx = x < 0 ? 0 : (x >= cols ? cols - 1 : x);
+            sum += heat[yy * cols + xx]; cnt++;
+          }
+        }
+        var idx = (sum / cnt * GAIN * (PAL_N - 1)) | 0;
+        if (idx < 34) idx = 34; else if (idx > 62) idx = 62;
+        document.documentElement.style.setProperty("--flame-live", palette[idx]);
+      }
+
       function frame(t) {
-        if (t - lastT >= INTERVAL) { lastT = t; step(); render(); paintBorder(); }
+        if (t - lastT >= INTERVAL) { lastT = t; step(); render(); paintBorder(); flameVar(); }
         raf = requestAnimationFrame(frame);
       }
 
@@ -209,6 +226,7 @@
         warmup();
         render();
         paintBorder();
+        flameVar();
         if (!reduce) { lastT = 0; raf = requestAnimationFrame(frame); }
       }
 
