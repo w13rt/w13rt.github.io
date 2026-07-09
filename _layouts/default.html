@@ -54,25 +54,29 @@
       var PAL_N = 64;
 
       // Tunable parameters (all 0..1 unless noted). Saved per-browser.
-      var defaults = { height: 0.73, width: 0.5, variance: 0.5, intensity: 0.62, speed: 1, scale: 16 };
+      var defaults = { height: 0.73, width: 0.6, variance: 0.5, brightness: 0.6, speed: 1, scale: 16 };
       var params = Object.assign({}, defaults);
       try { Object.assign(params, JSON.parse(localStorage.getItem("fireSettings") || "{}")); } catch (e) {}
 
       var cols, rows, spans, lastIdx, heat, palette, src, raf, lastT = 0;
-      var BASE, BUMP_PEAK, BUMP_DIV, WL, WC, WD, DIVISOR, COOL, INTERVAL;
+      var BASE, BUMP_PEAK, BUMP_DIV, BUMP_W, WL, WC, WD, DIVISOR, COOL, GAIN, INTERVAL;
 
       function lerp(a, b, t) { return a + (b - a) * t; }
 
       // Translate friendly 0..1 params into the simulation's constants.
       function computeDerived() {
-        BASE = params.intensity;
+        // Width = flame breadth: low -> thin separated flames over dark gaps;
+        // high -> broad tongues over a full warm base.
+        BASE = lerp(0.12, 0.62, params.width);
         BUMP_PEAK = lerp(0.1, 0.6, params.variance);
         BUMP_DIV = lerp(10, 4, params.variance);
-        WC = lerp(2.6, 1.2, params.width);   // narrow (center-heavy) -> wide
-        WL = lerp(0.55, 1.0, params.width);
+        BUMP_W = Math.round(lerp(1, 10, params.width));  // wider flames -> wider hot roots
+        WC = lerp(3.4, 0.9, params.width);   // thin center-heavy streaks -> broad tongues
+        WL = lerp(0.25, 1.15, params.width);
         WD = 1.0;
         DIVISOR = (WL * 2 + WC + WD) / lerp(0.94, 0.992, params.height); // higher -> taller
         COOL = 0.007;
+        GAIN = lerp(0.5, 1.8, params.brightness); // heat -> colour gain (dim red .. white-hot)
         INTERVAL = Math.max(16, 1000 / (30 * params.speed));
       }
 
@@ -139,7 +143,7 @@
         var bumps = Math.max(4, Math.round(cols / BUMP_DIV));
         for (var f = 0; f < bumps; f++) {
           var c = (Math.random() * cols) | 0;
-          var w = 3 + ((Math.random() * 6) | 0);
+          var w = BUMP_W + ((Math.random() * 3) | 0);
           var peak = BUMP_PEAK * (0.6 + Math.random() * 0.4);
           for (var dx = -w; dx <= w; dx++) {
             var xx = c + dx;
@@ -170,7 +174,7 @@
 
       function render() {
         for (var i = 0; i < spans.length; i++) {
-          var idx = (heat[i] * (PAL_N - 1)) | 0;
+          var idx = (heat[i] * GAIN * (PAL_N - 1)) | 0;
           if (idx > PAL_N - 1) idx = PAL_N - 1;
           if (idx !== lastIdx[i]) { spans[i].style.color = palette[idx]; lastIdx[i] = idx; }
         }
@@ -214,8 +218,8 @@
         get params() { return Object.assign({}, params); },
         apply: function (patch) {
           var needGrid = patch.scale !== undefined && patch.scale !== params.scale;
-          var needSource = (patch.intensity !== undefined && patch.intensity !== params.intensity) ||
-                           (patch.variance !== undefined && patch.variance !== params.variance);
+          var needSource = (patch.variance !== undefined && patch.variance !== params.variance) ||
+                           (patch.width !== undefined && patch.width !== params.width);
           Object.assign(params, patch);
           computeDerived();
           save();
