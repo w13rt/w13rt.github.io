@@ -90,7 +90,6 @@ body {
   inset: 0;
   z-index: -1;
   overflow: hidden;
-  white-space: pre;
   font-family: "Web437 IBM VGA", var(--font-mono);
   font-size: 16px;
   line-height: 1.25;
@@ -98,6 +97,10 @@ body {
   color: var(--glyph-color);
   pointer-events: none;
   user-select: none;
+
+  div {
+    white-space: nowrap;
+  }
 }
 
 body {

@@ -42,31 +42,128 @@
   </footer>
 
   <script>
-    // Fill the background with a wall of random CP437 glyphs.
+    // Background: a fixed wall of CP437 glyphs that never move. A demoscene
+    // fire simulation (hot source at the bottom, cooling as it rises) drives
+    // only the COLOR of each glyph, frame by frame.
     (function () {
       var el = document.getElementById("bg");
+      if (!el) return;
       var chars = "░░░▒▒▓│┤╣║╗╝┐└┴┬├─┼╚╔╩╦╠═╬█▄▀♠♣♥♦•○§¶≡±÷≈°·√⌐¬½¼«»αßΓπΣσµτΦΘΩδ∞φε∩";
-      function fill() {
-        // Cell size estimate; we overshoot and clip via overflow:hidden.
-        var style = getComputedStyle(el);
-        var cw = 8 + parseFloat(style.letterSpacing) || 14;
-        var ch = parseFloat(style.lineHeight) || 20;
-        var cols = Math.ceil(window.innerWidth / cw) + 2;
-        var rows = Math.ceil(window.innerHeight / ch) + 2;
-        var out = "";
-        for (var r = 0; r < rows; r++) {
-          for (var c = 0; c < cols; c++) {
-            out += chars[(Math.random() * chars.length) | 0];
-          }
-          out += "\n";
-        }
-        el.textContent = out;
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      var PAL_N = 64;
+      var cols, rows, spans, lastIdx, heat, palette, raf, lastT = 0;
+
+      function currentTheme() {
+        return document.documentElement.getAttribute("data-theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
       }
-      fill();
-      var t;
+
+      // Fire palette: cold faint glyph -> deep red -> orange -> yellow -> white.
+      function buildPalette() {
+        var stops = currentTheme() === "light"
+          ? [[0, [0,0,0,0.05]], [0.35, [150,55,10,0.16]], [0.6, [200,85,15,0.30]],
+             [0.82, [220,120,25,0.42]], [1, [232,158,55,0.55]]]
+          : [[0, [255,255,255,0.06]], [0.28, [110,18,8,0.34]], [0.52, [214,58,20,0.62]],
+             [0.74, [255,138,32,0.85]], [0.9, [255,210,92,0.95]], [1, [255,255,224,1]]];
+        palette = new Array(PAL_N);
+        for (var i = 0; i < PAL_N; i++) {
+          var t = i / (PAL_N - 1), a = stops[0], b = stops[stops.length - 1];
+          for (var s = 0; s < stops.length - 1; s++) {
+            if (t >= stops[s][0] && t <= stops[s + 1][0]) { a = stops[s]; b = stops[s + 1]; break; }
+          }
+          var f = (t - a[0]) / ((b[0] - a[0]) || 1), c = [];
+          for (var k = 0; k < 4; k++) c[k] = a[1][k] + (b[1][k] - a[1][k]) * f;
+          palette[i] = "rgba(" + (c[0]|0) + "," + (c[1]|0) + "," + (c[2]|0) + "," + c[3].toFixed(3) + ")";
+        }
+        if (lastIdx) for (var j = 0; j < lastIdx.length; j++) lastIdx[j] = -1;
+      }
+
+      function measure() {
+        var probe = document.createElement("span");
+        probe.textContent = "X".repeat(100);
+        el.appendChild(probe);
+        var cw = probe.getBoundingClientRect().width / 100;
+        el.removeChild(probe);
+        var lh = parseFloat(getComputedStyle(el).lineHeight) || 20;
+        return { cw: cw || 13.6, lh: lh };
+      }
+
+      function build() {
+        var m = measure();
+        cols = Math.ceil(window.innerWidth / m.cw) + 1;
+        rows = Math.ceil(window.innerHeight / m.lh) + 1;
+        var html = "";
+        for (var y = 0; y < rows; y++) {
+          html += "<div>";
+          for (var x = 0; x < cols; x++) html += "<span>" + chars[(Math.random() * chars.length) | 0] + "</span>";
+          html += "</div>";
+        }
+        el.innerHTML = html;
+        spans = el.getElementsByTagName("span");
+        var n = rows * cols;
+        heat = new Float32Array(n);
+        lastIdx = new Int16Array(n);
+        for (var i = 0; i < n; i++) lastIdx[i] = -1;
+        buildPalette();
+      }
+
+      function step() {
+        var base = (rows - 1) * cols, x;
+        for (x = 0; x < cols; x++) heat[base + x] = 0.55 + Math.random() * 0.45; // flickering source
+        for (var y = 0; y < rows - 1; y++) {
+          var row = y * cols, below = (y + 1) * cols,
+              below2 = (y + 2 < rows ? y + 2 : rows - 1) * cols;
+          for (x = 0; x < cols; x++) {
+            var l = x > 0 ? x - 1 : 0, r = x < cols - 1 ? x + 1 : cols - 1;
+            var v = (heat[below + l] + heat[below + x] + heat[below + r] + heat[below2 + x]) * 0.2475;
+            v -= Math.random() * 0.022;
+            heat[row + x] = v > 0 ? v : 0;
+          }
+        }
+      }
+
+      function render() {
+        for (var i = 0; i < spans.length; i++) {
+          var idx = (heat[i] * (PAL_N - 1)) | 0;
+          if (idx > PAL_N - 1) idx = PAL_N - 1;
+          if (idx !== lastIdx[i]) { spans[i].style.color = palette[idx]; lastIdx[i] = idx; }
+        }
+      }
+
+      function frame(t) {
+        if (t - lastT >= 33) { lastT = t; step(); render(); } // ~30fps
+        raf = requestAnimationFrame(frame);
+      }
+
+      build();
+      if (reduce) {
+        render(); // static, no animation
+      } else {
+        for (var w = 0; w < 12; w++) step(); // warm up so flames are already rising
+        render();
+        raf = requestAnimationFrame(frame);
+      }
+
+      // Repaint with the new palette when the theme changes.
+      new MutationObserver(buildPalette).observe(document.documentElement,
+        { attributes: true, attributeFilter: ["data-theme"] });
+
+      // Pause when the tab is hidden.
+      document.addEventListener("visibilitychange", function () {
+        if (document.hidden) { cancelAnimationFrame(raf); }
+        else if (!reduce) { lastT = 0; raf = requestAnimationFrame(frame); }
+      });
+
+      var rt;
       window.addEventListener("resize", function () {
-        clearTimeout(t);
-        t = setTimeout(fill, 150);
+        clearTimeout(rt);
+        rt = setTimeout(function () {
+          cancelAnimationFrame(raf);
+          build();
+          if (reduce) render();
+          else { for (var w = 0; w < 12; w++) step(); raf = requestAnimationFrame(frame); }
+        }, 200);
       });
     })();
 
