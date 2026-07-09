@@ -92,6 +92,7 @@ main.wrap {
   width: calc(100% - 2rem);
   background: var(--bg);
   border: 1px solid var(--flame);
+  border-image-slice: 1; /* JS sets border-image-source to a live flame gradient */
   margin: 2.5rem auto 4rem;
   padding: 2.5rem 2.25rem 3rem;
 }

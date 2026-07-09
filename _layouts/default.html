@@ -170,28 +170,26 @@
         return heat[row * cols + col];
       }
 
-      // Average flame colour sampled along one edge of the card.
-      function edgeColor(x0, y0, x1, y1) {
-        var sum = 0, N = 16;
-        for (var i = 0; i < N; i++) {
-          var t = i / (N - 1);
-          sum += heatAt(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t);
-        }
-        var idx = (sum / N * GAIN * (PAL_N - 1)) | 0;
+      // Flame colour at a viewport pixel (averaged across a few nearby samples).
+      function colorAt(px, py) {
+        var idx = (heatAt(px, py) * GAIN * (PAL_N - 1)) | 0;
         if (idx < 9) idx = 9;                 // faint ember floor so the frame stays visible
         if (idx > PAL_N - 1) idx = PAL_N - 1;
         return palette[idx];
       }
 
-      // Tint the card border to the flames directly behind each edge.
+      // Paint the card border as a vertical gradient of the flames behind it,
+      // so each edge fades from hot at the bottom to dark at the top.
       function paintBorder() {
         if (!card) card = document.querySelector("main.wrap");
         if (!card) return;
-        var r = card.getBoundingClientRect();
-        card.style.borderTopColor = edgeColor(r.left, r.top, r.right, r.top);
-        card.style.borderBottomColor = edgeColor(r.left, r.bottom, r.right, r.bottom);
-        card.style.borderLeftColor = edgeColor(r.left, r.top, r.left, r.bottom);
-        card.style.borderRightColor = edgeColor(r.right, r.top, r.right, r.bottom);
+        var r = card.getBoundingClientRect(), N = 12, stops = "";
+        for (var i = 0; i < N; i++) {
+          var t = i / (N - 1), y = r.top + (r.bottom - r.top) * t;
+          var c = colorAt((i % 2 ? r.right : r.left), y); // alternate edges for a blended feel
+          stops += (i ? "," : "") + c + " " + (t * 100).toFixed(1) + "%";
+        }
+        card.style.borderImageSource = "linear-gradient(to bottom, " + stops + ")";
       }
 
       function frame(t) {
