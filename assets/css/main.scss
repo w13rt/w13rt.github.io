@@ -211,6 +211,8 @@ table {
 
 .site-header {
   border-bottom: 1px solid var(--border);
+  font-family: "Web437 IBM VGA", var(--font-mono);
+  letter-spacing: 0;
 
   nav {
     display: flex;
@@ -225,7 +227,6 @@ table {
   font-weight: 700;
   color: var(--text);
   font-size: 1.125rem;
-  letter-spacing: -0.02em;
 }
 
 .site-title:hover {
@@ -233,41 +234,35 @@ table {
   color: var(--accent);
 }
 
+/* Nav links share the title's look: plain bold text, no chips. */
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 1.1rem;
 
   a {
-    color: var(--text-muted);
-    font-size: 0.9375rem;
-    line-height: 1.4;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.3rem 0.7rem;
+    color: var(--text);
+    font-weight: 700;
+    font-size: 1rem;
   }
 
   a:hover {
-    color: var(--text);
-    border-color: var(--text-muted);
+    color: var(--accent);
     text-decoration: none;
   }
 }
 
 #theme-toggle {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--text-muted);
+  background: none;
+  border: none;
+  color: var(--text);
   cursor: pointer;
-  padding: 0.44rem 0.5rem;
+  padding: 0;
   display: inline-flex;
   align-items: center;
 
   &:hover {
-    color: var(--text);
-    border-color: var(--text-muted);
+    color: var(--accent);
   }
 }
 
