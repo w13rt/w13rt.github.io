@@ -345,6 +345,73 @@ table {
   color: var(--text-muted);
 }
 
+/* ---------- Settings page ---------- */
+
+.settings-intro {
+  color: var(--text-muted);
+  margin-top: 0;
+}
+
+.settings {
+  margin: 2rem 0 0.5rem;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.1rem 0;
+}
+
+.settings-label {
+  flex: 0 0 8.5rem;
+  font-size: 0.95rem;
+}
+
+.settings-row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.settings-row output {
+  flex: 0 0 3rem;
+  text-align: right;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+}
+
+.settings-actions {
+  margin-top: 2rem;
+}
+
+.btn {
+  font: inherit;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: var(--text-muted);
+}
+
+.settings-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 480px) {
+  .settings-label {
+    flex-basis: 6rem;
+  }
+}
+
 /* ---------- Post ---------- */
 
 .post-header {

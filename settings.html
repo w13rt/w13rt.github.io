@@ -1,0 +1,75 @@
+---
+layout: page
+title: Fire settings
+permalink: /settings/
+---
+<p class="settings-intro">
+  Tweak the animated background. Changes preview live behind this page and
+  are saved in your browser, so they apply everywhere on the site. Watch the
+  edges of the screen while you drag.
+</p>
+
+<form id="fire-settings" class="settings"></form>
+
+<div class="settings-actions">
+  <button type="button" id="fire-reset" class="btn">Reset to defaults</button>
+</div>
+
+<p class="settings-note" id="fire-unsupported" hidden>
+  The animated background isn’t running (it may be disabled by a reduced-motion
+  setting), but your changes are still saved.
+</p>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var F = window.Fire;
+    var form = document.getElementById("fire-settings");
+    if (!form) return;
+    if (!F) { document.getElementById("fire-unsupported").hidden = false; return; }
+
+    var specs = [
+      { key: "height",    label: "Flame height",   min: 0,    max: 1,  step: 0.01 },
+      { key: "width",     label: "Flame width",    min: 0,    max: 1,  step: 0.01 },
+      { key: "variance",  label: "Height variance", min: 0,   max: 1,  step: 0.01 },
+      { key: "intensity", label: "Brightness",     min: 0.3,  max: 0.9, step: 0.01 },
+      { key: "speed",     label: "Animation speed", min: 0.25, max: 2,  step: 0.05 },
+      { key: "scale",     label: "Glyph size",     min: 10,   max: 22, step: 1 }
+    ];
+
+    function display(spec, v) {
+      return spec.step >= 1 ? v + "px"
+        : Math.round((v - spec.min) / (spec.max - spec.min) * 100) + "%";
+    }
+
+    var current = F.params;
+    specs.forEach(function (spec) {
+      var v = current[spec.key];
+      var row = document.createElement("label");
+      row.className = "settings-row";
+      row.innerHTML =
+        '<span class="settings-label">' + spec.label + '</span>' +
+        '<input type="range" min="' + spec.min + '" max="' + spec.max +
+          '" step="' + spec.step + '" value="' + v + '">' +
+        '<output></output>';
+      var input = row.querySelector("input");
+      var out = row.querySelector("output");
+      out.textContent = display(spec, v);
+      input.addEventListener("input", function () {
+        var val = parseFloat(input.value);
+        out.textContent = display(spec, val);
+        var patch = {}; patch[spec.key] = val;
+        F.apply(patch);
+      });
+      spec._input = input; spec._out = out;
+      form.appendChild(row);
+    });
+
+    document.getElementById("fire-reset").addEventListener("click", function () {
+      var d = F.reset();
+      specs.forEach(function (spec) {
+        spec._input.value = d[spec.key];
+        spec._out.textContent = display(spec, d[spec.key]);
+      });
+    });
+  });
+</script>
