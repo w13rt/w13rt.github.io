@@ -146,8 +146,8 @@
               below2 = (y + 2 < rows ? y + 2 : rows - 1) * cols;
           for (x = 0; x < cols; x++) {
             var l = x > 0 ? x - 1 : 0, r = x < cols - 1 ? x + 1 : cols - 1;
-            var v = (heat[below + l] * 0.72 + heat[below + x] * 2.0 + heat[below + r] * 0.72 + heat[below2 + x]) / 4.63;
-            v -= Math.random() * 0.008; // flickering tips
+            var v = (heat[below + l] * 0.72 + heat[below + x] * 2.0 + heat[below + r] * 0.72 + heat[below2 + x]) / 4.56;
+            v -= Math.random() * 0.007; // flickering tips
             heat[row + x] = v > 0 ? v : 0;
           }
         }
