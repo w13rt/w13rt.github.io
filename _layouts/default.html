@@ -43,7 +43,7 @@
       var PAL_N = 64;
 
       // Tunable parameters (all 0..1 unless noted). Saved per-browser.
-      var defaults = { height: 0.73, width: 0.6, variance: 0.5, brightness: 0.6, fps: 15, scale: 16 };
+      var defaults = { height: 0.73, width: 0.6, variance: 0.5, brightness: 0.75, fps: 15, scale: 16 };
       var params = Object.assign({}, defaults);
       try { Object.assign(params, JSON.parse(localStorage.getItem("fireSettings") || "{}")); } catch (e) {}
 
