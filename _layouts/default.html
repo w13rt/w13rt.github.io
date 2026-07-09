@@ -197,9 +197,16 @@
         raf = requestAnimationFrame(frame);
       }
 
+      // Run enough steps for heat to reach its full steady-state height (one
+      // row rises per step) so the first frame shows fully-grown flames.
+      function warmup() {
+        var n = rows + 25;
+        for (var w = 0; w < n; w++) step();
+      }
+
       function start() {
         cancelAnimationFrame(raf);
-        for (var w = 0; w < 14; w++) step(); // warm up so flames are already rising
+        warmup();
         render();
         paintBorder();
         if (!reduce) { lastT = 0; raf = requestAnimationFrame(frame); }
@@ -235,7 +242,7 @@
           save();
           if (needGrid) { el.style.fontSize = params.scale + "px"; build(); start(); return; }
           if (needSource) buildSource();
-          if (reduce) { for (var w = 0; w < 14; w++) step(); render(); }
+          if (reduce) { warmup(); render(); }
         },
         reset: function () {
           try { localStorage.removeItem("fireSettings"); } catch (e) {}
