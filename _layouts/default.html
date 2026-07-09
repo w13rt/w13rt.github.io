@@ -53,7 +53,7 @@
 
       var PAL_N = 64;
       var cols, rows, spans, lastIdx, heat, palette, raf, lastT = 0;
-      var src, phase, speed, T = 0; // per-column flame roots + flicker
+      var src; // per-column flame-root intensity
 
       function currentTheme() {
         return document.documentElement.getAttribute("data-theme") ||
@@ -110,50 +110,42 @@
         buildPalette();
       }
 
-      // Discrete flame roots: a handful of hot columns with faint, ember-cold
-      // gaps between them, so distinct tongues rise instead of one solid band.
+      // A warm baseline across the whole width (full fire, no cold gaps) with
+      // many wide overlapping hot bumps, so tongues vary tall-to-short.
       function buildSource() {
         src = new Float32Array(cols);
-        phase = new Float32Array(cols);
-        speed = new Float32Array(cols);
-        for (var x = 0; x < cols; x++) {
-          src[x] = 0.04;                          // faint ambient embers in the gaps
-          phase[x] = Math.random() * 6.283;
-          speed[x] = 0.12 + Math.random() * 0.22; // independent flicker rate
-        }
-        var flames = Math.max(4, Math.round(cols / 9));
-        for (var f = 0; f < flames; f++) {
+        for (var x = 0; x < cols; x++) src[x] = 0.62; // full warm base across the width
+        var bumps = Math.max(6, Math.round(cols / 5));
+        for (var f = 0; f < bumps; f++) {
           var c = (Math.random() * cols) | 0;
-          var w = 1 + ((Math.random() * 3) | 0);  // half-width in cells
-          var peak = 0.82 + Math.random() * 0.18;
+          var w = 3 + ((Math.random() * 6) | 0);   // wide half-width in cells
+          var peak = 0.3 + Math.random() * 0.25;   // stacked on the baseline
           for (var dx = -w; dx <= w; dx++) {
             var xx = c + dx;
             if (xx < 0 || xx >= cols) continue;
-            var v = peak * (1 - Math.abs(dx) / (w + 1)); // triangular falloff
-            if (v > src[xx]) src[xx] = v;
+            src[xx] += peak * (1 - Math.abs(dx) / (w + 1)); // triangular falloff
           }
         }
+        for (var i = 0; i < cols; i++) if (src[i] > 1) src[i] = 1;
       }
 
       function step() {
-        T += 1;
         var base = (rows - 1) * cols, x;
-        // Seed the bottom row from the flame roots, each flickering on its own.
+        // Seed the bottom row: each cell flickers randomly every frame (lively,
+        // ragged tops), scaled by its flame-root intensity (big where bumps are).
         for (x = 0; x < cols; x++) {
-          var fl = 0.72 + 0.28 * Math.sin(T * speed[x] + phase[x]) + (Math.random() - 0.35) * 0.2;
-          var s = src[x] * fl;
-          heat[base + x] = s > 0 ? (s > 1 ? 1 : s) : 0;
+          var s = src[x] * (0.45 + Math.random() * 0.55);
+          heat[base + x] = s > 1 ? 1 : s;
         }
-        // Rise with little lateral spread (center-below weighted heavily) so
-        // neighbouring flames stay distinct instead of blurring together.
+        // Rise tall (little decay) with a center bias, so the hot roots climb
+        // higher than their neighbours instead of averaging into a flat top.
         for (var y = 0; y < rows - 1; y++) {
           var row = y * cols, below = (y + 1) * cols,
               below2 = (y + 2 < rows ? y + 2 : rows - 1) * cols;
           for (x = 0; x < cols; x++) {
             var l = x > 0 ? x - 1 : 0, r = x < cols - 1 ? x + 1 : cols - 1;
-            var v = (heat[below + x] * 1.7 + (heat[below + l] + heat[below + r]) * 0.55 +
-                     heat[below2 + x] * 1.2) * 0.25; // weights sum to 4
-            v = v * 0.985 - Math.random() * 0.03;    // taper + flickering tips
+            var v = (heat[below + l] * 0.72 + heat[below + x] * 2.0 + heat[below + r] * 0.72 + heat[below2 + x]) / 4.63;
+            v -= Math.random() * 0.008; // flickering tips
             heat[row + x] = v > 0 ? v : 0;
           }
         }
