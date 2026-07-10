@@ -43,7 +43,10 @@
       var PAL_N = 64;
 
       // Tunable parameters (all 0..1 unless noted). Saved per-browser.
-      var defaults = { height: 0.8, width: 0.75, variance: 0.5, brightness: 0.75, fps: 15, scale: 16 };
+      var defaults = {
+        height: 0.8, width: 0.75, variance: 0.5, brightness: 0.75,
+        centerDensity: 0.65, centerSpread: 0.7, fps: 15, scale: 16
+      };
       var params = Object.assign({}, defaults);
       try { Object.assign(params, JSON.parse(localStorage.getItem("fireSettings") || "{}")); } catch (e) {}
 
@@ -119,20 +122,53 @@
       }
 
       // Warm baseline across the whole width plus wide overlapping hot bumps,
-      // so tongues vary tall-to-short.
+      // so tongues vary tall-to-short. A denser cluster is anchored below the
+      // content card, keeping several flame tongues beneath the post column.
       function buildSource() {
         src = new Float32Array(cols);
         for (var x = 0; x < cols; x++) src[x] = BASE;
-        var bumps = Math.max(4, Math.round(cols / BUMP_DIV));
-        for (var f = 0; f < bumps; f++) {
-          var c = (Math.random() * cols) | 0;
-          var w = BUMP_W + ((Math.random() * 3) | 0);
-          var peak = BUMP_PEAK * (0.6 + Math.random() * 0.4);
+
+        function addBump(c, w, peak) {
           for (var dx = -w; dx <= w; dx++) {
             var xx = c + dx;
             if (xx < 0 || xx >= cols) continue;
             src[xx] += peak * (1 - Math.abs(dx) / (w + 1));
           }
+        }
+
+        var bumps = Math.max(4, Math.round(cols / BUMP_DIV));
+        for (var f = 0; f < bumps; f++) {
+          var c = (Math.random() * cols) | 0;
+          var w = BUMP_W + ((Math.random() * 3) | 0);
+          var peak = BUMP_PEAK * (0.6 + Math.random() * 0.4);
+          addBump(c, w, peak);
+        }
+
+        var content = document.querySelector("main.wrap");
+        var rect = content && content.getBoundingClientRect();
+        var cardLeft = rect ? Math.max(0, rect.left / CW) : cols * 0.25;
+        var cardRight = rect ? Math.min(cols - 1, rect.right / CW) : cols * 0.75;
+        var cardCenter = (cardLeft + cardRight) / 2;
+        var halfSpread = Math.max(1, (cardRight - cardLeft) * lerp(0.08, 0.5, params.centerSpread));
+        var clusterLeft = Math.max(0, Math.floor(cardCenter - halfSpread));
+        var clusterRight = Math.min(cols - 1, Math.ceil(cardCenter + halfSpread));
+
+        // A soft heat floor prevents gaps between the individual cluster sources.
+        for (x = clusterLeft; x <= clusterRight; x++) {
+          var distance = Math.abs(x - cardCenter) / halfSpread;
+          src[x] += params.centerDensity * (0.2 + 0.24 * (1 - distance * distance));
+        }
+
+        // Spread several sources across the band. Their small positional, width,
+        // and heat variations make the guaranteed cluster feel organic.
+        var clusterBumps = Math.round(lerp(3, 10, params.centerDensity) * params.centerDensity);
+        for (f = 0; f < clusterBumps; f++) {
+          var slot = (f + 0.5 + (Math.random() - 0.5) * 0.7) / clusterBumps;
+          var clusterCenter = Math.round(clusterLeft + (clusterRight - clusterLeft) * slot);
+          var clusterWidth = BUMP_W + ((Math.random() * 3) | 0);
+          var clusterPeak = lerp(0.18, 0.62, params.centerDensity) *
+                            lerp(0.7, 1.25, params.variance) * (0.7 + Math.random() * 0.3);
+          addBump(clusterCenter, clusterWidth, clusterPeak);
         }
         for (var i = 0; i < cols; i++) if (src[i] > 1) src[i] = 1;
       }
@@ -254,7 +290,9 @@
         apply: function (patch) {
           var needGrid = patch.scale !== undefined && patch.scale !== params.scale;
           var needSource = (patch.variance !== undefined && patch.variance !== params.variance) ||
-                           (patch.width !== undefined && patch.width !== params.width);
+                           (patch.width !== undefined && patch.width !== params.width) ||
+                           (patch.centerDensity !== undefined && patch.centerDensity !== params.centerDensity) ||
+                           (patch.centerSpread !== undefined && patch.centerSpread !== params.centerSpread);
           Object.assign(params, patch);
           computeDerived();
           save();
