@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
 </head>
-<body>
-  <div id="bg" aria-hidden="true"></div>
+<body class="bg-{{ page.background | default: 'fire' }}">
+  <div id="bg" aria-hidden="true" data-background="{{ page.background | default: 'fire' }}"></div>
   <header class="site-header">
     <nav class="wrap">
       <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
@@ -22,6 +22,20 @@
   </header>
 
   <main class="wrap">
+    {% if page.background == 'xp' %}
+    <div class="xp-titlebar" aria-hidden="true">
+      <span class="xp-titlebar-icon">📝</span>
+      <span class="xp-titlebar-text">{{ page.title }} - Notepad</span>
+      <span class="xp-titlebar-buttons">
+        <span class="xp-btn xp-min"></span>
+        <span class="xp-btn xp-max"></span>
+        <span class="xp-btn xp-close"></span>
+      </span>
+    </div>
+    <nav class="xp-menubar" aria-hidden="true">
+      <span><u>F</u>ile</span><span><u>E</u>dit</span><span>F<u>o</u>rmat</span><span><u>V</u>iew</span><span><u>H</u>elp</span>
+    </nav>
+    {% endif %}
     {{ content }}
   </main>
 
@@ -39,6 +53,7 @@
     window.Fire = (function () {
       var el = document.getElementById("bg");
       if (!el) return null;
+      if (el.getAttribute("data-background") !== "fire") return null;
       var chars = "░░░▒▒▓│┤╣║╗╝┐└┴┬├─┼╚╔╩╦╠═╬█▄▀♠♣♥♦•○§¶≡±÷≈°·√⌐¬½¼«»αßΓπΣσµτΦΘΩδ∞φε∩";
       var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       var PAL_N = 64;
@@ -311,6 +326,91 @@
           return Object.assign({}, defaults);
         }
       };
+    })();
+  </script>
+
+  <script>
+    // Static Windows XP "Bliss" wallpaper rendered onto the same CP437 glyph
+    // grid: blue sky on top, green rolling hills on the bottom, gentle curved
+    // horizon. Colours are set once per cell by position (no animation).
+    (function () {
+      var el = document.getElementById("bg");
+      if (!el || el.getAttribute("data-background") !== "xp") return;
+
+      var chars = "░░░▒▒▓│┤╣║╗╝┐└┴┬├─┼╚╔╩╦╠═╬█▄▀♠♣♥♦•○§¶≡±÷≈°·√⌐¬½¼«»αßΓπΣσµτΦΘΩδ∞φε∩";
+      var ALPHA = 0.5;          // subtle: darker glyph texture over the bright wallpaper
+      var cols, rows, spans;
+
+      el.style.fontSize = "16px"; // deterministic cell density (matches CSS default)
+
+      function measure() {
+        var probe = document.createElement("span");
+        probe.textContent = "X".repeat(100);
+        el.appendChild(probe);
+        var cw = probe.getBoundingClientRect().width / 100;
+        el.removeChild(probe);
+        var lh = parseFloat(getComputedStyle(el).lineHeight) || 20;
+        return { cw: cw || 13.6, lh: lh };
+      }
+
+      function lerp(a, b, t) { return a + (b - a) * t; }
+      function rgba(r, g, b) {
+        return "rgba(" + (r|0) + "," + (g|0) + "," + (b|0) + "," + ALPHA + ")";
+      }
+
+      // Normalized horizon line as a function of nx in [0,1]: ~60-70% down the
+      // screen with a gentle rolling crest, slightly higher on the left.
+      function horizonAt(nx) {
+        return 0.64 + 0.06 * Math.sin(nx * Math.PI * 0.9 + 0.35);
+      }
+
+      // Darker than the CSS wallpaper gradient so the glyphs read as texture/detail.
+      var SKY_TOP = [20, 48, 92], SKY_LOW = [70, 112, 152];   // dark -> mid blue
+      var HILL_TOP = [42, 74, 16], HILL_LOW = [18, 40, 8];     // dark greens
+
+      function colorFor(nx, ny) {
+        var h = horizonAt(nx), c = [], k;
+        if (ny < h) {
+          var t = ny / h;                      // 0 at top, 1 at horizon
+          for (k = 0; k < 3; k++) c[k] = lerp(SKY_TOP[k], SKY_LOW[k], t);
+        } else {
+          var u = (ny - h) / (1 - h);          // 0 at horizon, 1 at bottom
+          for (k = 0; k < 3; k++) c[k] = lerp(HILL_TOP[k], HILL_LOW[k], u);
+        }
+        return rgba(c[0], c[1], c[2]);
+      }
+
+      function build() {
+        var m = measure();
+        cols = Math.ceil(window.innerWidth / m.cw) + 1;
+        rows = Math.ceil(window.innerHeight / m.lh) + 1;
+        var html = "";
+        for (var y = 0; y < rows; y++) {
+          html += "<div>";
+          for (var x = 0; x < cols; x++)
+            html += "<span>" + chars[(Math.random() * chars.length) | 0] + "</span>";
+          html += "</div>";
+        }
+        el.innerHTML = html;
+        spans = el.getElementsByTagName("span");
+        paint();
+      }
+
+      function paint() {
+        var denomX = cols > 1 ? cols - 1 : 1, denomY = rows > 1 ? rows - 1 : 1;
+        for (var i = 0; i < spans.length; i++) {
+          var x = i % cols, y = (i / cols) | 0;
+          spans[i].style.color = colorFor(x / denomX, y / denomY);
+        }
+      }
+
+      build();
+
+      var rt;
+      window.addEventListener("resize", function () {
+        clearTimeout(rt);
+        rt = setTimeout(build, 200);
+      });
     })();
   </script>
 </body>

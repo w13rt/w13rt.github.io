@@ -97,6 +97,158 @@ main.wrap {
   padding: 2.5rem 2.25rem 3rem;
 }
 
+/* ---------- XP "Bliss" background page ---------- */
+
+/* Luna blue replaces the flame-orange chrome. Fire never runs here, so
+   --flame-live is never set by JS; forcing both keeps every
+   var(--flame-live, var(--flame)) accent (nav, links, footer, tags) blue. */
+body.bg-xp {
+  --flame: #2a5bd7;       /* Luna title-bar blue */
+  --flame-live: #2a5bd7;
+}
+
+/* Fill the void behind the glyphs with the Bliss wallpaper so the gaps read as
+   sky/hills instead of near-black. Glyphs (brighter, set by JS) sit on top as
+   texture. Horizon stop (~64%) matches the JS horizon curve. */
+body.bg-xp #bg {
+  background: linear-gradient(
+    to bottom,
+    #3f7fc9 0%,
+    #6fa8de 50%,
+    #a9d4f5 62%,
+    #7cb342 64%,
+    #33691e 100%
+  );
+}
+
+/* The content "window" on XP pages is a light Luna window rather than the dark
+   card. Theme tokens are redefined on main.wrap only (they inherit to the
+   content) so the header/footer over the sky keep their light-on-dark styling. */
+body.bg-xp main.wrap {
+  --bg: #ece9d8;          /* XP "silver/beige" window face */
+  --bg-raised: #dcd7c2;
+  --text: #1b1b18;        /* dark text for light background */
+  --text-muted: #5a564a;
+  --accent: #1f45c0;      /* classic XP link blue */
+  --border: #b3ae98;
+  --code-bg: #dcd7c2;
+
+  color: var(--text);
+  display: flex;
+  flex-direction: column;      /* title bar, menu bar, then a filling document */
+  padding: 0;                  /* chrome + document area supply their own spacing */
+  overflow: hidden;            /* clip the title bar to the rounded top corners */
+  border: 2px solid #2a5bd7;   /* Luna window frame */
+  border-image: none;          /* cancel border-image-slice:1; no JS gradient here */
+  border-radius: 8px 8px 0 0;  /* Luna rounds the top corners */
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.45);
+}
+
+/* Title in the title bar, so hide the in-document heading (kept for a11y/SEO). */
+body.bg-xp .post-header {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Notepad's white document area — fills the client region below the menu bar. */
+body.bg-xp .post {
+  flex: 1;
+  background: #fff;
+}
+
+body.bg-xp .post-content {
+  color: var(--text);
+  margin: 0;
+  padding: 1.4rem 1.5rem 2.5rem;
+}
+
+/* ----- Luna title bar ----- */
+.xp-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 5px 0 8px;
+  font-family: "Web437 IBM VGA", var(--font-mono);
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(to bottom,
+    #3f92f5 0%, #0a5bdd 9%, #0a5bdd 46%, #0b50cf 92%, #0a44c0 100%);
+}
+
+.xp-titlebar-icon { font-size: 0.95rem; line-height: 1; }
+
+.xp-titlebar-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.xp-titlebar-buttons { display: flex; gap: 3px; }
+
+.xp-btn {
+  width: 22px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 3px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.xp-min, .xp-max { background: linear-gradient(to bottom, #6aa6f2, #1a5ed2); }
+.xp-close { background: linear-gradient(to bottom, #f4a08f, #d23a22); }
+
+.xp-min::before {   /* low bar */
+  content: "";
+  width: 9px;
+  height: 2px;
+  margin-top: 8px;
+  background: #fff;
+}
+
+.xp-max::before {   /* window box with a thick top edge */
+  content: "";
+  width: 10px;
+  height: 9px;
+  border: 1px solid #fff;
+  border-top-width: 2px;
+}
+
+.xp-close::before {
+  content: "\2715";
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ----- Menu bar (File / Edit / Format / View / Help) ----- */
+.xp-menubar {
+  display: flex;
+  gap: 1.1rem;
+  padding: 3px 10px 4px;
+  background: #ece9d8;
+  border-bottom: 1px solid #b3ae98;
+  font-family: "Web437 IBM VGA", var(--font-mono);
+  font-size: 0.82rem;
+  color: #1b1b18;
+}
+
+.xp-menubar u { text-underline-offset: 1px; }
+
 a {
   color: var(--accent);
   text-decoration: none;
