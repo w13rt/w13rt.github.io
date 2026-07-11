@@ -38,8 +38,11 @@ matter:
 layout: post
 title: "My post"
 subtitle: "Optional"
+tags: [topic-one, topic-two]
 ---
 ```
+
+Tags are optional. They appear on posts and can be browsed on the Topics page.
 
 ## Structure
 

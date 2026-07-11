@@ -108,6 +108,7 @@ a:hover {
 }
 
 h1, h2, h3, h4 {
+  font-family: "Web437 IBM VGA", var(--font-mono);
   line-height: 1.3;
   letter-spacing: -0.015em;
   font-weight: 650;
@@ -260,12 +261,99 @@ table {
 
   a {
     color: var(--text);
+    font-family: "Web437 IBM VGA", var(--font-mono);
     font-weight: 550;
   }
 
   a:hover {
     color: var(--flame-live, var(--flame));
     text-decoration: none;
+  }
+}
+
+.post-list-entry {
+  align-items: baseline;
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+/* ---------- Topics ---------- */
+
+.post-tags,
+.topic-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post-tags {
+  margin-top: 0.75rem;
+}
+
+.topic-tag,
+.topic-control {
+  display: inline-block;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: "Web437 IBM VGA", var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  padding: 0.3rem 0.45rem;
+}
+
+.topic-tag,
+.topic-control {
+  border-color: var(--flame-live, var(--flame));
+}
+
+.post-list .topic-tag {
+  font-weight: 400;
+}
+
+.topic-tag:hover,
+.topic-control:hover,
+.topic-control[aria-pressed="true"] {
+  border-color: var(--flame-live, var(--flame));
+  color: var(--flame-live, var(--flame));
+  text-decoration: none;
+}
+
+.topic-control {
+  background: var(--bg);
+  cursor: pointer;
+}
+
+.topics-intro {
+  margin-bottom: 1.5rem;
+}
+
+.topics-empty,
+.topics-status {
+  color: var(--text-muted);
+  margin: 2rem 0 0;
+}
+
+.topics-results {
+  margin-top: 2rem;
+}
+
+.topics-results .post-list {
+  margin-top: 1rem;
+}
+
+.topics-fallback {
+  margin-top: 2.5rem;
+
+  h2 {
+    font-size: 1.25rem;
+    margin-top: 2rem;
   }
 }
 
@@ -425,6 +513,11 @@ table {
   .post-list li {
     flex-direction: column;
     gap: 0.1rem;
+  }
+
+  .post-tags,
+  .topic-controls {
+    gap: 0.4rem;
   }
 
   .post-header h1 {

@@ -15,7 +15,13 @@ permalink: /archive/
     {% for post in year.items %}
       <li>
         <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %-d" }}</time>
-        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        <div class="post-list-entry">
+          <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          {% if post.tags and post.tags.size > 0 %}
+            {% assign primary_tag = post.tags | first %}
+            <a class="topic-tag topic-tag-inline" href="{{ '/topics/' | relative_url }}#{{ primary_tag | slugify }}">{{ primary_tag }}</a>
+          {% endif %}
+        </div>
       </li>
     {% endfor %}
   </ul>
