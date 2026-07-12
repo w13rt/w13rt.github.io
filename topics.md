@@ -6,21 +6,19 @@ permalink: /topics/
 
 <section class="intro topics-intro">
   <h1>Topics</h1>
-  <p>Select a topic to see every matching post.</p>
+  <p>Every post is listed below. Pick a topic to filter.</p>
 </section>
 
 {% assign topics = site.tags | sort %}
 {% if topics.size > 0 %}
   <nav class="topic-controls" aria-label="Topics" id="topic-controls">
-    <button class="topic-control" type="button" data-topic="" aria-pressed="false">All topics</button>
+    <button class="topic-control" type="button" data-topic="" aria-pressed="true">All topics</button>
     {% for topic in topics %}
       <button class="topic-control" type="button" data-topic="{{ topic[0] | slugify }}" aria-pressed="false">{{ topic[0] }}</button>
     {% endfor %}
   </nav>
 
-  <p class="topics-empty" id="topics-empty">Select a topic to load its posts.</p>
-
-  <section class="topics-results" id="topics-results" hidden aria-labelledby="topics-status">
+  <section class="topics-results" id="topics-results" aria-labelledby="topics-status">
     <p class="topics-status" id="topics-status" aria-live="polite"></p>
     <ul class="post-list" id="topic-posts">
       {% for post in site.posts %}
@@ -68,8 +66,6 @@ permalink: /topics/
 
     var buttons = controls.querySelectorAll("[data-topic]");
     var posts = document.querySelectorAll("#topic-posts > li");
-    var empty = document.getElementById("topics-empty");
-    var results = document.getElementById("topics-results");
     var status = document.getElementById("topics-status");
 
     function buttonFor(topic) {
@@ -79,34 +75,29 @@ permalink: /topics/
       return null;
     }
 
-    function resetTopics() {
-      for (var i = 0; i < buttons.length; i++) buttons[i].setAttribute("aria-pressed", "false");
-      empty.hidden = false;
-      results.hidden = true;
-      for (var j = 0; j < posts.length; j++) posts[j].hidden = false;
-    }
-
+    // Filter the list to `topic` (empty string = show every post).
     function showTopic(topic) {
-      var button = buttonFor(topic);
-      if (!button) { resetTopics(); return; }
+      var button = buttonFor(topic) || buttonFor("");
+      topic = button.dataset.topic;
 
       var matches = 0;
       for (var i = 0; i < buttons.length; i++) {
         buttons[i].setAttribute("aria-pressed", buttons[i] === button ? "true" : "false");
       }
       for (var j = 0; j < posts.length; j++) {
-        var tagged = posts[j].dataset.topics.indexOf("|" + topic + "|") !== -1;
-        posts[j].hidden = !tagged;
-        if (tagged) matches++;
+        var shown = !topic || posts[j].dataset.topics.indexOf("|" + topic + "|") !== -1;
+        posts[j].hidden = !shown;
+        if (shown) matches++;
       }
-      empty.hidden = true;
-      results.hidden = false;
-      status.textContent = matches + (matches === 1 ? " post in " : " posts in ") + button.textContent + ".";
+      var noun = matches === 1 ? " post" : " posts";
+      status.textContent = topic
+        ? matches + noun + " in " + button.textContent + "."
+        : "Showing all " + matches + noun + ".";
     }
 
     function applyHash() {
       var topic = window.location.hash ? decodeURIComponent(window.location.hash.slice(1)) : "";
-      if (topic) showTopic(topic); else resetTopics();
+      showTopic(topic);
     }
 
     for (var i = 0; i < buttons.length; i++) {
@@ -114,11 +105,10 @@ permalink: /topics/
         var topic = this.dataset.topic;
         if (topic) {
           window.location.hash = topic;
-          showTopic(topic);
         } else {
           history.replaceState(null, "", window.location.pathname + window.location.search);
-          resetTopics();
         }
+        showTopic(topic);
       });
     }
 
